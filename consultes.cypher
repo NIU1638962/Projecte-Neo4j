@@ -8,6 +8,7 @@ WHERE
 RETURN p.name AS Nom_Padro
 
 //2
+//TODO: Eliminar null is NaN's
 
 MATCH (p:Individual)-[r:FAMILIA]-(p2:Individual)-[:VIU]-(h:Habitatge)
 WHERE 
