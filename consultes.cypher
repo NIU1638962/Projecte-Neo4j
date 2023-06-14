@@ -65,5 +65,21 @@ ORDER BY TotalPadrons DESC
 LIMIT 15
 
 //11
+MATCH (p:Individual)<-[:FAMILIA]-(p)-[r:FAMILIA]->(f:Individual)-[:VIU]->(h:Habitatge)
+WITH size(collect(f.name)) AS num_fills, r, h, p, f // ESTO NO FUNCIONA
+WHERE 
+    r.relacio_harmonitzada =~ "fill*" OR
+    r.relacio =~ "hij*" AND
+    num_fills > 3 AND
+    h.municipi = "SFLL" 
+RETURN 
+    p.name AS Nom_Cap, 
+    p.surname as Cognoms_Cap, 
+    collect(f.name) as Nom_fill
+ORDER BY size(Nom_fill) DESC
+LIMIT 20
+
 //12
+
+
 //13
