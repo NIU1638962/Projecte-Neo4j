@@ -81,5 +81,17 @@ LIMIT 20
 
 //12
 
+MATCH (p:Individual)<-[:FAMILIA]-(p)-[r:FAMILIA]->(f:Individual)-[:VIU]->(h:Habitatge)
+WHERE
+    r.relacio_harmonitzada =~ "fill*" OR
+    r.relacio =~ "hij*" AND
+    p.year < 1881 AND
+    f.year = 1881 AND
+    h.municipi = "SFLL"
+CALL { MATCH (h:Habitatge) WHERE h.municipi = "SFLL" RETURN size(collect(h)) AS Num_Habitatges }
+RETURN
+    size(collect(f)) AS Tot_fills,
+    Num_Habitatges,
+    size(collect(f))/Num_Habitatges AS Mitja_fills_hab
 
 //13
