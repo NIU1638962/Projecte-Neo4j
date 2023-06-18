@@ -1,11 +1,8 @@
 //1
 
-MATCH (p:Individual)-[r:FAMILIA]-(p)-[:VIU]-(h:Habitatge)
-WHERE 
-    r.relacio_harmonitzada = "jefe" AND 
-    p.year = 1866 AND
-    h.municipi = "CR"  
-RETURN p.name AS Nom_Padro
+MATCH (p:Individual)-[:VIU]->(h:Habitatge)
+WHERE h.any_padro = 1866 AND h.municipi = "CR"
+RETURN count(p) AS Num_Habs, collect(p.surname) AS Cognoms
 
 //2
 //TODO: Eliminar null is NaN's
@@ -66,7 +63,7 @@ LIMIT 15
 
 //11
 MATCH (p:Individual)<-[:FAMILIA]-(p)-[r:FAMILIA]->(f:Individual)-[:VIU]->(h:Habitatge)
-WITH size(collect(f.name)) AS num_fills, r, h, p, f // ESTO NO FUNCIONA
+WITH size(collect(f.name)) AS num_fills, r, h, p, f
 WHERE 
     r.relacio_harmonitzada =~ "fill*" OR
     r.relacio =~ "hij*" AND
@@ -95,3 +92,15 @@ RETURN
     size(collect(f))/Num_Habitatges AS Mitja_fills_hab
 
 //13
+
+CALL {
+    MATCH (i:Individual)-[:VIU]->(h:Habitatge)
+    WHERE h.municipi = "SFLL" 
+    WITH h.any_padro AS year , h.carrer AS carrer, count(i.name) AS habs_carrer
+    RETURN year, min(habs_carrer) AS min_habs
+}
+MATCH (i:Individual)-[:VIU]->(h:Habitatge)
+WITH h, h.any_padro AS Year , h.carrer AS carrer, count(i.name) AS habs_carrer, min_habs
+WHERE h.municipi = "SFLL" AND habs_carrer = min_habs
+RETURN DISTINCT Year, carrer, min_habs
+ORDER BY Year ASC
