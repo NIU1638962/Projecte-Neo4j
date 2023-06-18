@@ -5,13 +5,10 @@ WHERE h.any_padro = 1866 AND h.municipi = "CR"
 RETURN count(p) AS Num_Habs, collect(p.surname) AS Cognoms
 
 //2
-//TODO: Eliminar null is NaN's
 
-MATCH (p:Individual)-[r:FAMILIA]-(p2:Individual)-[:VIU]-(h:Habitatge)
-WHERE 
-    r.relacio_harmonitzada = "jefe" 
-    AND h.municipi = "SFLL"
-RETURN DISTINCT(p.name) AS Nom_Padro, p.year AS Any_Padro, collect(DISTINCT p2.surname) as Cognoms, size(collect(p2.surname)) as Num_Habitants
+MATCH (p:Individual)-[:VIU]->(h:Habitatge)
+WHERE h.municipi = "SFLL"
+RETURN h.any_padro AS Any_Padro, count(p) AS Num_Habs, collect(DISTINCT p.surname) AS Cognoms
 
 //3
 
