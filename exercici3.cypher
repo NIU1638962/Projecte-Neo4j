@@ -59,7 +59,7 @@ RETURN size(allcommunities)
 CALL gds.graph.project($generatedName, $graphConfig.nodeProjection, $graphConfig.relationshipProjection, {});
 
 CALL gds.wcc.stream($generatedName, $config)
-YIELD nodeId, communityId AS community
+YIELD nodeId, componentId AS community
 WITH gds.util.asNode(nodeId) AS node, community
 WITH community, collect(node) AS nodes
 RETURN community,  nodes[0..$communityNodeLimit] AS nodes, size(nodes) AS size
@@ -68,8 +68,26 @@ LIMIT toInteger($limit);
 
 //Comanda 6
 CALL gds.wcc.stream($generatedName, $config)
-YIELD nodeId, communityId AS community
+YIELD nodeId, componentId AS community
 WITH gds.util.asNode(nodeId) AS node, community
 WITH community, collect(node) AS nodes
 WITH collect(community) as allcommunities
 RETURN size(allcommunities)
+
+//Apartat b
+// Comanda 7
+:param limit => ( 42);
+:param graphConfig => ({nodeProjection: '*', relationshipProjection: {relType: {type: '*', orientation: 'NATURAL', properties: {}}}});
+:param config => ({similarityMetric: 'Jaccard', similarityCutoff: 0.1, degreeCutoff: 1, writeProperty: 'score', writeRelationshipType: 'SIMILAR'});
+:param communityNodeLimit => ( 10);
+:param generatedName => ('in-memory-graph-1687903714067');
+
+CALL gds.graph.project($generatedName, $graphConfig.nodeProjection, $graphConfig.relationshipProjection, {});
+
+CALL gds.nodeSimilarity.write($generatedName, $config);
+
+MATCH (from)-[rel:`SIMILAR`]-(to)
+WHERE rel.`score` IS NOT NULL
+RETURN from, to, rel.`score` AS similarity
+ORDER BY similarity DESC
+LIMIT toInteger($limit);
